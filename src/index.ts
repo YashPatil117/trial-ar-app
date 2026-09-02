@@ -1,32 +1,12 @@
 import {
   AssetManifest,
   AssetType,
-  Mesh,
-  MeshBasicMaterial,
-  PlaneGeometry,
   SessionMode,
-  SRGBColorSpace,
-  AssetManager,
   World,
 } from "@iwsdk/core";
 
-import {
-  AudioSource,
-  DistanceGrabbable,
-  MovementMode,
-  Interactable,
-  PanelUI,
-  PlaybackMode,
-  ScreenSpace,
-} from "@iwsdk/core";
-
-import { EnvironmentType, LocomotionEnvironment } from "@iwsdk/core";
-
-import { PanelSystem } from "./panel.js";
-
-import { Robot } from "./robot.js";
-
-import { RobotSystem } from "./robot.js";
+import { CreateAR, Ma5cAnimationSystem } from "./Ma5c";
+import { createCustomPanelEntity, CustomUiPanel } from "./panel";
 
 const assets: AssetManifest = {
   chimeSound: {
@@ -39,7 +19,6 @@ const assets: AssetManifest = {
     type: AssetType.Texture,
     priority: "critical",
   },
-
   plantSansevieria: {
     url: "./gltf/plantSansevieria/plantSansevieria.gltf",
     type: AssetType.GLTF,
@@ -47,6 +26,11 @@ const assets: AssetManifest = {
   },
   robot: {
     url: "./gltf/robot/robot.gltf",
+    type: AssetType.GLTF,
+    priority: "critical",
+  },
+  Ma5c: {
+    url: "./gltf/Ma5c/ma5c_ar.glb",
     type: AssetType.GLTF,
     priority: "critical",
   },
@@ -75,63 +59,11 @@ World.create(document.getElementById("scene-container") as HTMLDivElement, {
   },
 }).then((world) => {
   const { camera } = world;
-
   camera.position.set(0, 1, 0.5);
 
-  const { scene: plantMesh } = AssetManager.getGLTF("plantSansevieria")!;
+  world.registerSystem(Ma5cAnimationSystem);
+  world.registerSystem(CustomUiPanel);
 
-  plantMesh.position.set(1.2, 0.2, -1.8);
-  plantMesh.scale.setScalar(2);
-
-  world
-    .createTransformEntity(plantMesh)
-    .addComponent(Interactable)
-    .addComponent(DistanceGrabbable, {
-      movementMode: MovementMode.MoveFromTarget,
-    });
-
-  const { scene: robotMesh } = AssetManager.getGLTF("robot")!;
-  // defaults for AR
-  robotMesh.position.set(-1.2, 0.4, -1.8);
-  robotMesh.scale.setScalar(1);
-
-  world
-    .createTransformEntity(robotMesh)
-    .addComponent(Interactable)
-    .addComponent(Robot)
-    .addComponent(AudioSource, {
-      src: "./audio/chime.mp3",
-      maxInstances: 3,
-      playbackMode: PlaybackMode.FadeRestart,
-    });
-
-  const panelEntity = world
-    .createTransformEntity()
-    .addComponent(PanelUI, {
-      config: "./ui/welcome.json",
-      maxHeight: 0.8,
-      maxWidth: 1.6,
-    })
-    .addComponent(Interactable)
-    .addComponent(ScreenSpace, {
-      top: "20px",
-      left: "20px",
-      height: "40%",
-    });
-  panelEntity.object3D!.position.set(0, 1.29, -1.9);
-
-  const webxrLogoTexture = AssetManager.getTexture("webxr")!;
-  webxrLogoTexture.colorSpace = SRGBColorSpace;
-  const logoBanner = new Mesh(
-    new PlaneGeometry(3.39, 0.96),
-    new MeshBasicMaterial({
-      map: webxrLogoTexture,
-      transparent: true,
-    }),
-  );
-  world.createTransformEntity(logoBanner);
-  logoBanner.position.set(0, 1, 1.8);
-  logoBanner.rotateY(Math.PI);
-
-  world.registerSystem(PanelSystem).registerSystem(RobotSystem);
+  CreateAR(world);
+  createCustomPanelEntity(world);
 });

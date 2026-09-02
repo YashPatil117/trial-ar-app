@@ -1,0 +1,31 @@
+<style>
+.panel-root {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 500px;
+    height: 200px;
+    border-width: 0.15;
+    border-radius: 3;
+    font-size: 24px;
+    color: white;
+}
+
+.buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    background-color: #64cde4;
+    width: 100%;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 8px;
+}
+</style>
+
+<div class="panel-root">
+    <button class="buttons" id="animation-rise-up">Rise</button>
+    <button class="buttons" id="animation-roar">Roar</button>
+    <button class="buttons" id="animation-fall">Fall</button>
+</div>

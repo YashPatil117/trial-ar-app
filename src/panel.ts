@@ -1,43 +1,50 @@
 import {
   createSystem,
+  eq,
   PanelUI,
   PanelDocument,
-  eq,
-  VisibilityState,
-  UIKitDocument,
-  UIKit,
+  RayInteractable,
+  World,
+  ScreenSpace,
 } from "@iwsdk/core";
 
-export class PanelSystem extends createSystem({
-  welcomePanel: {
-    required: [PanelUI, PanelDocument],
-    where: [eq(PanelUI, "config", "./ui/welcome.json")],
+import { Ma5Component } from "./Ma5c";
+
+export function createCustomPanelEntity(world: World) {
+  const panelEntity = world.createTransformEntity(undefined, {
+    parent: world.sceneEntity,
+  });
+
+  panelEntity.object3D?.position.set(0, 0, -1);
+  panelEntity.object3D?.scale.setScalar(0.5);
+
+  panelEntity
+    .addComponent(PanelUI, {
+      config: ".ui/animationbutton.json",
+    })
+    .addComponent(ScreenSpace, {
+      width: "500px",
+      height: "500px",
+      right: "40%",
+      left: "40%",
+    });
+
+  panelEntity.addComponent(RayInteractable);
+
+  return panelEntity;
+}
+
+export class CustomUiPanel extends createSystem({
+  animationPanel: {
+    required: [PanelUI, ScreenSpace, RayInteractable],
+    where: [eq(PanelUI, "config", ".ui/animationbutton.json")],
   },
+  ma5c: { required: [Ma5Component] },
 }) {
   init() {
-    this.queries.welcomePanel.subscribe("qualify", (entity) => {
-      const document = PanelDocument.data.document[
-        entity.index
-      ] as UIKitDocument;
-      if (!document) {
-        return;
-      }
-
-      const xrButton = document.getElementById("xr-button") as UIKit.Text;
-      xrButton.addEventListener("click", () => {
-        if (this.world.visibilityState.value === VisibilityState.NonImmersive) {
-          this.world.launchXR();
-        } else {
-          this.world.exitXR();
-        }
-      });
-      this.world.visibilityState.subscribe((visibilityState) => {
-        if (visibilityState === VisibilityState.NonImmersive) {
-          xrButton.setProperties({ text: "Enter XR" });
-        } else {
-          xrButton.setProperties({ text: "Exit to Browser" });
-        }
-      });
+    this.queries.animationPanel.subscribe("qualify", (entity) => {
+      const document = PanelDocument.data.document[entity.index] as Document;
+      console.log("Panel document loaded:", document);
     });
   }
 }
