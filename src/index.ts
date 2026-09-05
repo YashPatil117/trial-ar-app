@@ -52,7 +52,9 @@ World.create(document.getElementById("scene-container") as HTMLDivElement, {
   },
   features: {
     locomotion: false,
-    grabbing: true,
+    grabbing: {
+      useHandPinchForGrab: true,
+    },
     physics: true,
     sceneUnderstanding: true,
     environmentRaycast: true,

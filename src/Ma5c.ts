@@ -8,10 +8,11 @@ import {
   createComponent,
   Types,
   createSystem,
-  RayInteractable,
-  DistanceGrabbable,
+  Entity,
+  Interactable,
   OneHandGrabbable,
-  TwoHandsGrabbable,
+  DistanceGrabbable,
+  TwoHandsGrabbable
 } from "@iwsdk/core";
 
 export const Ma5Component = createComponent("ma5c", {
@@ -20,40 +21,29 @@ export const Ma5Component = createComponent("ma5c", {
   animationClips: { type: Types.Object, default: [] },
 });
 
-export function CreateAR(world: World) {
+export function CreateAR(world: World): Entity {
   const gltf = AssetManager.getGLTF("Ma5c");
   if (!gltf) {
     throw new Error("Ma5c Assault rifle GLTF asset not found");
   }
-  console.log("Loaded GLTF scene:", gltf.scene);
 
+  const mesh = gltf.scene;
+  mesh.position.set(0, 1, -2);
+  mesh.scale.setScalar(0.4);
+  mesh.rotation.set(0, 90, -80);
+  mesh.visible = true;
 
-  //before
-//   const ma5centity = world.createTransformEntity(gltf.scene, {
-//     parent: world.sceneEntity,
-//   });
+  const entity = world.createTransformEntity(mesh);
 
-const ma5centity = gltf.scene;
+  entity.addComponent(Interactable);
+  entity.addComponent(TwoHandsGrabbable, {
+    rotate: true,
+  });
+  entity.addComponent(Ma5Component, {
+    animationClips: gltf.animations,
+  });
 
-  ma5centity.position.set(0, 1, -2);
-  ma5centity.scale.setScalar(0.4);
-  ma5centity.rotation.set(0, 90, -80);
-  ma5centity.visible = true;
-
-
-  const ma5entity1 = world.createTransformEntity(ma5centity);
-
-  ma5entity1.addComponent(RayInteractable);
-//   ma5entity1.addComponent(OneHandGrabbable);
-  ma5entity1.addComponent(TwoHandsGrabbable,{
-    rotate:true,
-  })
-  //before
-//   ma5centity.addComponent(Ma5Component, {
-//     animationClips: gltf.animations,
-//   });
-
-  return ma5centity;
+  return entity;
 }
 
 export class Ma5cAnimationSystem extends createSystem({
