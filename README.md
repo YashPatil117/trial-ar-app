@@ -1,10 +1,10 @@
-# IWSDK Starter Template
+# IWSDK
 
-This folder is a source template used by `scripts/generate-starters.cjs` to produce 8 runnable variants:
+
 
 - `starter-<vr|ar>-<manual|metaspatial>-<ts|js>`
 
-Do not run this template directly. The generator will:
+Do not run this  directly. The generator will:
 
 - Copy a variant-specific `src/index.ts` (see `src/index-*.ts`).
 - Install the matching Vite config from `configs/`.
